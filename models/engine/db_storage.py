@@ -80,11 +80,11 @@ class DBStorage:
         # check if cls exists
         if cls:
             # query db for list of class object
-            return self.__session.query(cls).filter_by(id=id).first()
+            return self.__session.query(cls).get(id)
 
     def count(self, cls=None):
         """A method to count the number of objects in the dbstorage"""
         if cls:
             return self.__session.query(cls).count()
         else:
-            return len(models.storage.all())
+            return len(self.all().values())

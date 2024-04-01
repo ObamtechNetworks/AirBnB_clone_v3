@@ -30,6 +30,18 @@ class TestDBStorageDocs(unittest.TestCase):
         """Set up for the doc tests"""
         cls.dbs_f = inspect.getmembers(DBStorage, inspect.isfunction)
 
+    @classmethod
+    def tearDownClass(cls):
+        """Remove all objects from the storage after running tests"""
+        models.storage.close()  # close the storage session
+        models.storage.reload()  # reload the storage to reset
+        # storage = models.storage
+        # all_obj = storage.all()
+        # for key in list(all_obj.keys()):
+        #    obj = all_obj[key]
+        #    storage.delete(obj)
+        # storage.save()
+
     def test_pep8_conformance_db_storage(self):
         """Test that models/engine/db_storage.py conforms to PEP8."""
         pep8s = pep8.StyleGuide(quiet=True)
@@ -66,6 +78,46 @@ test_db_storage.py'])
                              "{:s} method needs a docstring".format(func[0]))
             self.assertTrue(len(func[1].__doc__) >= 1,
                             "{:s} method needs a docstring".format(func[0]))
+
+    def test_get(self):
+        """Test the get method of DBStorage"""
+        cls = User  # Example class
+        obj = User(name="John", email="john.doe@example.com")
+        models.storage.new(obj)
+        models.storage.save()
+        retrieved_obj = models.storage.get(cls, obj.id)
+        self.assertIsNot(retrieved_obj, None)  # check obj retrieved
+        self.assertEqual(retrieved_obj.id, obj.id)  # check id match
+
+        # Test with invalid id
+        invalid_id = "123-abc"
+        retrieved_obj = models.storage.get(cls, invalid_id)
+        self.assertIs(retrieved_obj, None)
+
+        models.storage.delete(obj)
+        models.storage.save()
+
+    def test_count(self):
+        """Test the count method of DBStorage"""
+        cls = User  # Example class
+        obj1 = User(name="Alice", email="alice@example.com")
+        obj2 = User(name="Bob", email="bob@example.com")
+        models.storage.new(obj1)
+        models.storage.new(obj2)
+        models.storage.save()
+
+        # Count with specific class
+        count = models.storage.count(cls)
+        self.assertEqual(count, 3)  # Check count matches number of objects
+
+        # Count all objects
+        count = models.storage.count()
+        # Check count is at least 2 (may include other objects)
+        self.assertGreaterEqual(count, 2)
+
+        models.storage.delete(obj1)
+        models.storage.delete(obj2)
+        models.storage.save()
 
 
 class TestFileStorage(unittest.TestCase):

@@ -2,7 +2,7 @@
 """Begining to create my RESTAPI and route"""
 
 from api.v1.views import app_views
-from flask import Flask
+from flask import Flask, jsonify
 import os
 from models import storage
 
@@ -17,6 +17,14 @@ app.register_blueprint(app_views, url_prefix='/api/v1')
 def teardown_context(exception):
     """closes the storage connection on context teardown"""
     storage.close()
+
+
+@app.errorhandler(404)
+def custom_404(error):
+    """Returns a custom 404 response message"""
+    resp = jsonify({"error": "Not found"})
+    resp.status_code = 404
+    return resp
 
 
 if __name__ == '__main__':

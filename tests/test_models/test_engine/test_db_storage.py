@@ -108,12 +108,13 @@ test_db_storage.py'])
 
         # Count with specific class
         count = models.storage.count(cls)
+        # print("Count = {}".format(count))
         self.assertEqual(count, 3)  # Check count matches number of objects
 
         # Count all objects
         count = models.storage.count()
         # Check count is at least 2 (may include other objects)
-        self.assertGreaterEqual(count, 2)
+        self.assertGreaterEqual(count, 3)
 
         models.storage.delete(obj1)
         models.storage.delete(obj2)

@@ -36,12 +36,15 @@ class DBStorage:
                                       format(HBNB_MYSQL_USER,
                                              HBNB_MYSQL_PWD,
                                              HBNB_MYSQL_HOST,
-                                             HBNB_MYSQL_DB))
+                                             HBNB_MYSQL_DB), pool_pre_ping=True)
+
         if HBNB_ENV == "test":
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
         """query on the current database session"""
+        if not self.__session:
+            self.reload()
         new_dict = {}
         for clss in classes:
             if cls is None or cls is classes[clss] or cls is clss:
@@ -49,11 +52,12 @@ class DBStorage:
                 for obj in objs:
                     key = obj.__class__.__name__ + '.' + obj.id
                     new_dict[key] = obj
-        return (new_dict)
+        return new_dict
 
     def new(self, obj):
         """add the object to the current database session"""
-        self.__session.add(obj)
+        if obj:
+            self.__session.add(obj)
 
     def save(self):
         """commit all changes of the current database session"""
@@ -61,6 +65,8 @@ class DBStorage:
 
     def delete(self, obj=None):
         """delete from the current database session obj if not None"""
+        if not self.__session:
+            self.reload()
         if obj is not None:
             self.__session.delete(obj)
 
@@ -87,4 +93,4 @@ class DBStorage:
         if cls:
             return self.__session.query(cls).count()
         else:
-            return len(self.all().values())
+            return len(models.storage.all())

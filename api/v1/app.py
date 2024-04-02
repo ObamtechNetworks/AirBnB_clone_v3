@@ -1,10 +1,12 @@
 #!/usr/bin/python3
 """Begining to create my RESTAPI and route"""
 
-from api.v1.views import app_views
-from flask import Flask, jsonify
+
 import os
+from flask import Flask, jsonify
+
 from models import storage
+from api.v1.views import app_views
 
 app = Flask(__name__)
 

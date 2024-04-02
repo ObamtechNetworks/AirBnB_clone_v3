@@ -17,7 +17,7 @@ classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
 
 
 class FileStorage:
-    """serializes instances to a JSON file & deserializes back to instances"""
+    """serializes instances to a JSON & deserializes back to instances"""
 
     # string - path to the JSON file
     __file_path = "file.json"
@@ -26,13 +26,17 @@ class FileStorage:
 
     def all(self, cls=None):
         """returns the dictionary __objects"""
-        if cls is not None:
-            new_dict = {}
-            for key, value in self.__objects.items():
-                if cls == value.__class__ or cls == value.__class__.__name__:
-                    new_dict[key] = value
-            return new_dict
-        return self.__objects
+        try:
+            if cls is not None:
+                new_dict = {}
+                for key, value in self.__objects.items():
+                    if cls == value.__class__ or \
+                            cls == value.__class__.__name__:
+                        new_dict[key] = value
+                return new_dict
+            return self.__objects
+        except (IndexError, Exception):
+            return None
 
     def new(self, obj):
         """sets in __objects the obj with key <obj class name>.id"""
@@ -54,7 +58,8 @@ class FileStorage:
             with open(self.__file_path, 'r') as f:
                 jo = json.load(f)
             for key in jo:
-                self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
+                self.__objects[key] = \
+                        classes[jo[key]["__class__"]](**jo[key])
         except Exception:
             pass
 
@@ -66,7 +71,7 @@ class FileStorage:
                 del self.__objects[key]
 
     def close(self):
-        """call reload() method for deserializing the JSON file to objects"""
+        """call reload() method for deserializing the JSON file to obj"""
         self.reload()
 
     def get(self, cls, id):
@@ -86,10 +91,13 @@ class FileStorage:
         if no class, returns number of all object in the storage
         """
         # check if class is given
-        if cls:
-            count = sum(1 for obj in
-                        self.__objects.values()
-                        if isinstance(obj, cls))
-        else:
-            count = len(self.__objects)
-        return count
+        try:
+            if cls:
+                count = sum(1 for obj in
+                            self.__objects.values()
+                            if isinstance(obj, cls))
+            else:
+                count = len(self.__objects)
+            return count
+        except Exception:
+            return 0

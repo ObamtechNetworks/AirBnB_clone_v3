@@ -1,10 +1,11 @@
 #!/usr/bin/python3
-"""Begining to create my RESTAPI and route"""
+"""
+A module to create my RESTAPIFUL and route
+"""
 
 
 import os
 from flask import Flask, jsonify
-
 from models import storage
 from api.v1.views import app_views
 

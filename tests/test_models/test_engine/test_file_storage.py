@@ -113,3 +113,57 @@ class TestFileStorage(unittest.TestCase):
         with open("file.json", "r") as f:
             js = f.read()
         self.assertEqual(json.loads(string), json.loads(js))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_get_valid_arguments(self):
+        """Tests get method with valid arguments"""
+        storage = FileStorage()
+        # Create a new object
+        instance = User(email="test@example.com", password="password123")
+        storage.new(instance)
+        storage.save()
+
+        # Get the object using get
+        retrieved_object = storage.get(User, instance.id)
+        self.assertEqual(retrieved_object, instance)
+
+        # Test with non-existent ID
+        self.assertIsNone(storage.get(User, "non-existent-id"))
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_get_invalid_arguments(self):
+        """Tests get method with invalid arguments"""
+        storage = FileStorage()
+        state = State()
+        storage.new(state)
+        storage.save()
+        key = '{}.{}'.format(state.__class__.__name__, id)
+        self.assertEqual(storage.get(State, key), storage.get(State, key))
+
+        self.assertEqual(storage.get(User, key), None)  # Invalid class
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_count_valid_arguments(self):
+        """Tests count method with valid arguments"""
+        storage = FileStorage()
+        # Create multiple objects
+        user1 = User(email="user1@example.com", password="user1pass")
+        user2 = User(email="user2@example.com", password="user2pass")
+        place = Place(city_id="some_city_id", user_id="some_user_id")
+        storage.new(user1)
+        storage.new(user2)
+        storage.new(place)
+        storage.save()
+
+        # Test count with specific class
+        self.assertEqual(storage.count(User), 3)
+
+        # Test count with no class
+        self.assertEqual(storage.count(), storage.count())
+
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_count_invalid_arguments(self):
+        """Tests count method with invalid arguments"""
+        storage = FileStorage()
+        with self.assertRaises(TypeError):
+            storage.count("invalid_class")  # Invalid class type

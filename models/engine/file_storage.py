@@ -76,7 +76,7 @@ class FileStorage:
 
     def get(self, cls, id):
         """A method to retrieve one object, for filestorage db"""
-        if cls:
+        if cls and isinstance(cls, type):
             key = '{}.{}'.format(cls.__name__, id)
             if key in self.__objects:
                 return self.__objects[key]
@@ -99,5 +99,5 @@ class FileStorage:
             else:
                 count = len(self.__objects)
             return count
-        except Exception:
+        except (KeyError, IndexError):
             return 0

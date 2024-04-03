@@ -10,28 +10,27 @@ from models.state import State
 
 # use to_dict() method to retrieve an object into a valid JSON
 # Retrieves the list of all State objects
-@app_views.route('/states/', methods=['GET'])
-@app_views.route('/states', methods=['GET'])
+@app_views.route('/states', methods=['GET'], strict_slashes=False)
 def list_all_state():
     """lists all state object"""
     states = storage.all(State).values()
-    return jsonify([state.to_dict() for state in states])
+    return jsonify([state.to_dict() for state in states]), 200
 
 
 # retireves a state object by id
-@app_views.route('/states/<string:state_id>', methods=['GET'])
+@app_views.route('/states/<state_id>', methods=['GET'])
 def state_by_id(state_id):
     """lists state by given id"""
     state = storage.get(State, state_id)
     # check if state exists
     if state:
-        return jsonify(state.to_dict())
+        return jsonify(state.to_dict()), 200
     else:
         abort(404)
 
 
 # deletes a state object
-@app_views.route('/states/<string:state_id>', methods=['DELETE'])
+@app_views.route('/states/<state_id>', methods=['DELETE'])
 def delete_state_obj(state_id):
     """deletes a state"""
     state = storage.get(State, state_id)
@@ -44,7 +43,7 @@ def delete_state_obj(state_id):
 
 
 # creates a new State
-@app_views.route('/states', methods=['POST'])
+@app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_state():
     """creates a state obj"""
     # transform the http body to a dictionary
@@ -63,7 +62,7 @@ def create_state():
 
 
 # update a state
-@app_views.route('/states/<string:state_id>', methods=['PUT'])
+@app_views.route('/states/<state_id>', methods=['PUT'])
 def update_state(state_id):
     """updates a state"""
     state = storage.get(State, state_id)

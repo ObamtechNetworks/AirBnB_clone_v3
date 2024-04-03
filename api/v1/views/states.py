@@ -48,10 +48,10 @@ def create_state():
     """creates a state obj"""
     # transform the http body to a dictionary
     data = request.get_json()
-    if not data:
-        abort(400, description="Not a JSON")
+    if data is None:
+        abort(400, 'Not a JSON')
     if 'name' not in data:
-        abort(400, description="Missing name")
+        abort(400, 'Missing name')
 
     # unpack the data to create a new State instance
     new_state = State(**data)
@@ -62,19 +62,18 @@ def create_state():
 
 
 # update a state
-@app_views.route('/states/<state_id>', methods=['PUT'])
+@app_views.route('/states/<state_id>', methods=['PUT'],
+                 strict_slashes=False)
 def update_state(state_id):
     """updates a state"""
     state = storage.get(State, state_id)
 
-    if not state:
+    if state is None:
         abort(404)
 
     data = request.get_json()
-    if not data:
-        abort(400, description="Not a JSON")
-    if 'name' not in data:
-        abort(400, description="Missing name")
+    if data is None:
+        abort(400, 'Not a JSON')
     # update State object iwth all key-value pairs
     for key, value in data.items():
         if key not in ['id', 'created_at', 'updated_at']:

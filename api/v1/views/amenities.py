@@ -19,7 +19,7 @@ def list_amenities():
         abort(404)  # return 404 if None is returned
     # fetch cities based on states
     amenities_json = [amenity.to_dict() for amenity in amenities]
-    return jsonify(amenities_json)
+    return jsonify(amenities_json), 200
 
 
 # retrieve an amenity by ID
@@ -30,7 +30,7 @@ def get_amenity(amenity_id):
     amenity = storage.get(Amenity, amenity_id)
     if amenity is None:
         abort(404)  # return 404 if None is returned
-    return jsonify(amenity.to_dict())
+    return jsonify(amenity.to_dict()), 200
 
 
 # delete an amenity
@@ -50,7 +50,7 @@ def delete_amenity(amenity_id):
 # creates a new Amenity
 @app_views.route('/amenities', methods=['POST'],
                  strict_slashes=False)
-def create_amenity(amenity_id):
+def create_amenity():
     """creates a new Amenity"""
     # transform the http body to a dictionary
     data = request.get_json()
@@ -79,7 +79,7 @@ def update_amenity(amenity_id):
         abort(400, 'Not a JSON')
     # update State object iwth all key-value pairs
     for key, value in data.items():
-        if key not in ['id', 'state_id', 'created_at', 'updated_at']:
+        if key not in ['id', 'created_at', 'updated_at']:
             setattr(amenity, key, value)
     amenity.save()
     # save the new object state
